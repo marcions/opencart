@@ -22,6 +22,9 @@ services:
       opencart-mysql:
         condition: service_healthy
     restart: unless-stopped
+    networks:
+      - coolify-network
+      - internal
 
   opencart-mysql:
     image: mariadb:10.11
@@ -39,3 +42,12 @@ services:
       retries: 20
       start_period: 30s
     restart: unless-stopped
+    networks:
+      - internal
+
+networks:
+  coolify-network:
+    external: true
+    name: coolify
+  internal:
+    internal: true
