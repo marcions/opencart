@@ -1,0 +1,41 @@
+services:
+  opencart:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    entrypoint: ["/docker-entrypoint.sh"]
+    environment:
+      - OPENCART_USERNAME=${OPENCART_USERNAME:-admin}
+      - OPENCART_PASSWORD=${OPENCART_PASSWORD:-admin}
+      - OPENCART_ADMIN_EMAIL=${OPENCART_ADMIN_EMAIL:-admin@example.com}
+      - OPENCART_HTTP_SERVER=${OPENCART_HTTP_SERVER:-http://localhost/}
+      - DB_HOSTNAME=opencart-mysql
+      - DB_USERNAME=${DB_USERNAME:-opencart}
+      - DB_PASSWORD=${DB_PASSWORD:-opencart}
+      - DB_DATABASE=${DB_DATABASE:-opencart}
+      - DB_PORT=3306
+      - DB_PREFIX=${DB_PREFIX:-oc_}
+      - DB_DRIVER=mysqli
+    volumes:
+      - /datadrive/opencart/storage:/storage
+    depends_on:
+      opencart-mysql:
+        condition: service_healthy
+    restart: unless-stopped
+
+  opencart-mysql:
+    image: mariadb:10.11
+    environment:
+      - MARIADB_ROOT_PASSWORD=${DB_ROOT_PASSWORD:-root}
+      - MARIADB_DATABASE=${DB_DATABASE:-opencart}
+      - MARIADB_USER=${DB_USERNAME:-opencart}
+      - MARIADB_PASSWORD=${DB_PASSWORD:-opencart}
+    volumes:
+      - /datadrive/opencart/mariadb:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mariadb-admin", "ping", "-h", "localhost", "-u", "root", "-p${DB_ROOT_PASSWORD:-root}"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 30s
+    restart: unless-stopped
