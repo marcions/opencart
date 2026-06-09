@@ -1,0 +1,7 @@
+upload/config.php
+upload/admin/config.php
+upload/install.lock
+upload/system/storage/cache/
+upload/system/storage/logs/
+upload/system/storage/session/
+*.log
